@@ -1,0 +1,8 @@
+{
+  "name": "@vue/reactivity",
+  "version": "1.0.0",
+  "description": "@vue/reactivity",
+  "main": "index.js",
+  "author": "snowingfox",
+  "license": "MIT"
+}
