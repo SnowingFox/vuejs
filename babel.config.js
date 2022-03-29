@@ -7,8 +7,7 @@ module.exports = {
         chrome: '67',
         safari: '11.1',
       },
-      useBuiltIns: 'usage',
-      corejs: '3.6.5',
+
     },
   ],
     '@babel/preset-typescript',
