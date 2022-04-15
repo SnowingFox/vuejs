@@ -20,12 +20,18 @@ export class ReactiveEffect<T = any> {
   }
 }
 
+export interface ReactiveEffectRunner<T = any> {
+  (): T
+  effect: ReactiveEffect<T>
+}
+
 export function effect<T = any>(
   fn: () => T,
 ) {
   const _effect = new ReactiveEffect(fn)
 
-  _effect.run()
+  const runner = _effect.run.bind(_effect) as ReactiveEffectRunner<T>
+  runner.effect = _effect
 }
 
 export function track(target: Object, key: unknown) {
@@ -43,6 +49,7 @@ export function track(target: Object, key: unknown) {
   trackEffect(dep)
 }
 
+// trackEffect(dep)
 function trackEffect(dep: Dep) {
   dep.add(activeEffect!)
   activeEffect!.deps.push(dep)
