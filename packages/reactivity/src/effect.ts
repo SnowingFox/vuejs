@@ -1,4 +1,4 @@
-import { Dep } from './dep'
+import { Dep, createDep } from './dep'
 
 let activeEffect: ReactiveEffect | null = null
 
@@ -51,6 +51,40 @@ export function track(target: Object, key: unknown) {
 
 // trackEffect(dep)
 function trackEffect(dep: Dep) {
-  dep.add(activeEffect!)
-  activeEffect!.deps.push(dep)
+  let shouldTrack = false
+  shouldTrack = !dep.has(activeEffect!)
+  if (shouldTrack) {
+    dep.add(activeEffect!)
+    activeEffect!.deps.push(dep)
+  }
+}
+
+export function trigger(
+  target: Object,
+  key: unknown,
+) {
+  const depsMap = targetMap.get(target)
+  if (!depsMap) {
+    return
+  }
+
+  const deps: (Dep | undefined)[] = []
+  deps.push(depsMap.get(key))
+
+  const effects: ReactiveEffect[] = []
+  for (const dep of deps) {
+    if (dep) {
+      effects.push(...dep)
+    }
+  }
+
+  triggerEffects(createDep(effects))
+}
+
+export function triggerEffects(
+  dep: Dep,
+) {
+  for (const effect of dep) {
+    effect.run()
+  }
 }
