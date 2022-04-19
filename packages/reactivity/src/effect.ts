@@ -32,6 +32,18 @@ export function effect<T = any>(
 
   const runner = _effect.run.bind(_effect) as ReactiveEffectRunner<T>
   runner.effect = _effect
+
+  return runner
+}
+
+function cleanupEffect(effect: ReactiveEffect) {
+  const { deps } = effect
+  if (deps.length) {
+    for (let i = 0; i < deps.length; i++) {
+      deps[i].delete(effect)
+    }
+    deps.length = 0
+  }
 }
 
 export function track(target: Object, key: unknown) {
@@ -49,7 +61,6 @@ export function track(target: Object, key: unknown) {
   trackEffect(dep)
 }
 
-// trackEffect(dep)
 function trackEffect(dep: Dep) {
   let shouldTrack = false
   shouldTrack = !dep.has(activeEffect!)
