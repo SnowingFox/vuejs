@@ -15,8 +15,18 @@ export class ReactiveEffect<T = any> {
 
   run() {
     activeEffect = this
-
+    cleanupEffect(this)
     return this.fn()
+  }
+}
+
+function cleanupEffect(effect: ReactiveEffect) {
+  const { deps } = effect
+  if (deps.length) {
+    for (let i = 0; i < deps.length; i++) {
+      deps[i].delete(effect)
+    }
+    deps.length = 0
   }
 }
 
@@ -30,23 +40,17 @@ export function effect<T = any>(
 ) {
   const _effect = new ReactiveEffect(fn)
 
+  _effect.run()
   const runner = _effect.run.bind(_effect) as ReactiveEffectRunner<T>
   runner.effect = _effect
 
   return runner
 }
 
-function cleanupEffect(effect: ReactiveEffect) {
-  const { deps } = effect
-  if (deps.length) {
-    for (let i = 0; i < deps.length; i++) {
-      deps[i].delete(effect)
-    }
-    deps.length = 0
-  }
-}
-
 export function track(target: Object, key: unknown) {
+  if (!activeEffect) {
+    return
+  }
   let depsMap = targetMap.get(target)
   if (!depsMap) {
     targetMap.set(target, (depsMap = new Map()))
@@ -75,6 +79,7 @@ export function trigger(
   key: unknown,
 ) {
   const depsMap = targetMap.get(target)
+
   if (!depsMap) {
     return
   }

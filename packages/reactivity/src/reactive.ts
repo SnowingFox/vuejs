@@ -1,4 +1,5 @@
 import { toRawType } from '../../shared/src'
+import { mutableHandlers } from './baseHandlers'
 
 const enum TargetType {
   INVALID = 0,
@@ -47,15 +48,29 @@ function getTargetType(value: Target) {
 
 export function reactive<T extends object>(target: T): T
 export function reactive(target: Object) {
+  return createReactiveObject(
+    target,
+    false,
+    mutableHandlers,
+    reactiveMap,
+  )
 }
 
 function createReactiveObject(
   target: Object,
   isReadonly: boolean,
   baseHandlers: ProxyHandler<any>,
-  collectionHandlers: ProxyHandler<any>,
+  proxyMap: WeakMap<any, any>,
+  collectionHandlers?: ProxyHandler<any>,
 ) {
+  const existingProxy = proxyMap.get(target)
+  if (existingProxy) {
+    return existingProxy
+  }
+  const proxy = new Proxy(target, mutableHandlers)
+  proxyMap.set(target, proxy)
 
+  return proxy
 }
 
 export function toRaw<T>(observed: T): T {
