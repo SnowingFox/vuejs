@@ -1,11 +1,4 @@
-import { toRawType } from '../../shared/src'
 import { mutableHandlers, readonlyHandlers } from './baseHandlers'
-
-const enum TargetType {
-  INVALID = 0,
-  COMMON = 1,
-  COLLECTION = 2,
-}
 
 export const enum ReactiveFlags {
   SKIP = '__v_skip',
@@ -25,27 +18,6 @@ export interface Target {
 
 export const reactiveMap = new WeakMap<Target, any>()
 export const readonlyMap = new WeakMap<Target, any>()
-
-function targetTypeMap(rawType: string) {
-  switch (rawType) {
-    case 'Object':
-    case 'Array':
-      return TargetType.COMMON
-    case 'Map':
-    case 'Set':
-    case 'WeakMap':
-    case 'WeakSet':
-      return TargetType.COLLECTION
-    default:
-      return TargetType.INVALID
-  }
-}
-
-function getTargetType(value: Target) {
-  return value[ReactiveFlags.SKIP] || !Object.isExtensible(value)
-    ? TargetType.INVALID
-    : targetTypeMap(toRawType(value))
-}
 
 export function reactive<T extends object>(target: T): T
 export function reactive(target: Object) {
@@ -71,7 +43,6 @@ function createReactiveObject(
   isReadonly: boolean,
   baseHandlers: ProxyHandler<any>,
   proxyMap: WeakMap<any, any>,
-  collectionHandlers?: ProxyHandler<any>,
 ) {
   const existingProxy = proxyMap.get(target)
   if (existingProxy) {
@@ -90,4 +61,12 @@ export function toRaw<T>(observed: T): T {
 
 export function isReadonly(target: unknown) {
   return !!(target as Target)[ReactiveFlags.IS_READONLY]
+}
+
+export function isReactive(target: unknown) {
+  return !!(target as Target)[ReactiveFlags.IS_REACTIVE]
+}
+
+export function isProxy(target: unknown) {
+  return isReactive(target) || isReadonly(target)
 }
