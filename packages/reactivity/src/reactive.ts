@@ -1,3 +1,4 @@
+import { isObject } from '../../shared/src'
 import { mutableHandlers, readonlyHandlers } from './baseHandlers'
 
 export const enum ReactiveFlags {
@@ -69,4 +70,12 @@ export function isReactive(target: unknown) {
 
 export function isProxy(target: unknown) {
   return isReactive(target) || isReadonly(target)
+}
+
+export function toReactive(target: unknown) {
+  return isObject(target) ? reactive(target) : target
+}
+
+export function toReadonly(target: unknown) {
+  return isObject(target) ? readonly(target as Record<any, any>) : target
 }

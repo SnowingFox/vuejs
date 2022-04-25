@@ -1,4 +1,4 @@
-import { effect, isReadonly, reactive, readonly } from '../src'
+import { effect, isReadonly, reactive, readonly, toReadonly } from '../src'
 
 test('readonly', () => {
   const readonlyObj = readonly({ foo: 1 })
@@ -8,4 +8,9 @@ test('readonly', () => {
   expect(fnSpy).toHaveBeenCalled()
   expect(isReadonly(readonlyObj)).toBe(true)
   expect(isReadonly(reactiveObj)).toBe(false)
+})
+
+test('readonly', () => {
+  const obj = { foo: 1 }
+  expect(isReadonly(toReadonly(obj))).toBe(true)
 })
