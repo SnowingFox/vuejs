@@ -1,5 +1,5 @@
 import { toRawType } from '../../shared/src'
-import { mutableHandlers } from './baseHandlers'
+import { mutableHandlers, readonlyHandlers } from './baseHandlers'
 
 const enum TargetType {
   INVALID = 0,
@@ -24,6 +24,7 @@ export interface Target {
 }
 
 export const reactiveMap = new WeakMap<Target, any>()
+export const readonlyMap = new WeakMap<Target, any>()
 
 function targetTypeMap(rawType: string) {
   switch (rawType) {
@@ -56,6 +57,15 @@ export function reactive(target: Object) {
   )
 }
 
+export function readonly<T extends object>(target: T): T {
+  return createReactiveObject(
+    target,
+    true,
+    readonlyHandlers,
+    readonlyMap,
+  )
+}
+
 function createReactiveObject(
   target: Object,
   isReadonly: boolean,
@@ -67,7 +77,7 @@ function createReactiveObject(
   if (existingProxy) {
     return existingProxy
   }
-  const proxy = new Proxy(target, mutableHandlers)
+  const proxy = new Proxy(target, baseHandlers)
   proxyMap.set(target, proxy)
 
   return proxy
@@ -76,4 +86,8 @@ function createReactiveObject(
 export function toRaw<T>(observed: T): T {
   const raw = observed && (observed as Target)[ReactiveFlags.RAW]
   return raw ? toRaw(raw) : observed
+}
+
+export function isReadonly(target: unknown) {
+  return !!(target as Target)[ReactiveFlags.IS_READONLY]
 }
