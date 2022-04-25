@@ -6,7 +6,7 @@ describe('reactivity/effect', () => {
     effect(fnSpy)
     expect(fnSpy).toHaveBeenCalledTimes(1)
   })
-  it('should ', () => {
+  it('should be called twice', () => {
     const dummy = reactive({ foo: 1 })
     const fnSpy = jest.fn(() => console.log(dummy.foo))
     effect(fnSpy)
