@@ -1,32 +1,65 @@
-import { ReactiveFlags, Target } from './reactive'
+import { extend, isObject } from '../../shared/src'
+import {
+  ReactiveFlags,
+  Target,
+  isReactive,
+  isShallow,
+  reactive,
+  reactiveMap,
+  readonly, readonlyMap, shallowReactiveMap, shallowReadonlyMap,
+} from './reactive'
 import { track, trigger } from './effect'
 
 const get = /*#__PURE__*/ createGetter()
 const readonlyGet = /*#__PURE__*/ createGetter(true)
+const shallowGet = /*#__PURE__*/ createGetter(false, true)
+const shallowReadonlyGet = /*#__PURE__*/ createGetter(true, true)
 
-const set = /*#__PURE__*/ createSetter()
-
-function createGetter(isReadonly = false, isShallow = false): ProxyHandler<any>['get'] {
+function createGetter(isReadonly = false, shallow = false): ProxyHandler<any>['get'] {
   return function get(target: Target, key: string | symbol, receiver: object) {
-    const res = Reflect.get(target, key, receiver)
-
     if (key === ReactiveFlags.IS_REACTIVE) {
       return !isReadonly
     } else if (key === ReactiveFlags.IS_READONLY) {
       return isReadonly
     } else if (key === ReactiveFlags.IS_SHALLOW) {
-      return isShallow
+      return shallow
+    } else if (
+      key === ReactiveFlags.RAW
+        && receiver === (isReadonly
+          ? shallow
+            ? shallowReadonlyMap
+            : readonlyMap
+          : shallow
+            ? shallowReactiveMap
+            : reactiveMap
+      ).get(target)
+    ) {
+      return target
     }
 
     if (!isReadonly) {
       track(target, key)
     }
 
+    const res = Reflect.get(target, key, receiver)
+
+    if (shallow) {
+      return res
+    }
+
+    // TODO why should I must using isShallow here?
+    if (isObject(res) && !isShallow(res)) {
+      return isReadonly ? readonly(res) : reactive(res)
+    }
+
     return res
   }
 }
 
-function createSetter(): ProxyHandler<any>['set'] {
+const set = /*#__PURE__*/ createSetter()
+const shallowSet = /*#__PURE__*/ createSetter(true)
+
+function createSetter(shallow = false): ProxyHandler<any>['set'] {
   return function set(target: Target, key: string | symbol, value: any, receiver: object) {
     const oldVal = (target as any)[key]
     const result = Reflect.set(target, key, value, receiver)
@@ -53,3 +86,16 @@ export const readonlyHandlers: ProxyHandler<object> = {
     return true
   },
 }
+
+export const shallowReadonlyHandlers: ProxyHandler<object> = extend({}, readonlyHandlers, {
+  get: shallowReadonlyGet,
+})
+
+export const shallowReactiveHandlers = /*#__PURE__*/ extend(
+  {},
+  mutableHandlers,
+  {
+    get: shallowGet,
+    set: shallowSet,
+  },
+)

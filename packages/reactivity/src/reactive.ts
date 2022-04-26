@@ -1,5 +1,5 @@
 import { isObject } from '../../shared/src'
-import { mutableHandlers, readonlyHandlers } from './baseHandlers'
+import { mutableHandlers, readonlyHandlers, shallowReactiveHandlers, shallowReadonlyHandlers } from './baseHandlers'
 
 export const enum ReactiveFlags {
   SKIP = '__v_skip',
@@ -18,7 +18,9 @@ export interface Target {
 }
 
 export const reactiveMap = new WeakMap<Target, any>()
+export const shallowReactiveMap = new WeakMap<Target, any>()
 export const readonlyMap = new WeakMap<Target, any>()
+export const shallowReadonlyMap = new WeakMap<Target, any>()
 
 export function reactive<T extends object>(target: T): T
 export function reactive(target: Object) {
@@ -30,12 +32,30 @@ export function reactive(target: Object) {
   )
 }
 
+export function shallowReactive<T extends object>(target: T): T {
+  return createReactiveObject(
+    target,
+    false,
+    shallowReactiveHandlers,
+    shallowReactiveMap,
+  )
+}
+
 export function readonly<T extends object>(target: T): T {
   return createReactiveObject(
     target,
     true,
     readonlyHandlers,
     readonlyMap,
+  )
+}
+
+export function shallowReadonly<T extends object>(target: T): T {
+  return createReactiveObject(
+    target,
+    true,
+    shallowReadonlyHandlers,
+    shallowReadonlyMap,
   )
 }
 
@@ -66,6 +86,10 @@ export function isReadonly(target: unknown) {
 
 export function isReactive(target: unknown) {
   return !!(target as Target)[ReactiveFlags.IS_REACTIVE]
+}
+
+export function isShallow(target: unknown) {
+  return !!(target as Target)[ReactiveFlags.IS_SHALLOW]
 }
 
 export function isProxy(target: unknown) {

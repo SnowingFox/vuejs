@@ -1,9 +1,14 @@
 import { isProxy, isReactive, reactive, readonly, toReactive } from '../src'
 
 describe('reactivity/reactive', () => {
+  test('reactive', () => {
+    const original = { foo: {} }
+    const reactiveProxy = reactive(original)
+    expect(isReactive(reactiveProxy.foo)).toBe(true)
+  })
   test('isReactive', () => {
     const reactiveObj = reactive({ foo: 1 })
-    const readonlyObj = readonly({ foo: 1 })
+    const readonlyObj = readonly({ foo: 1, n: { value: 2 } })
     const obj = { foo: 1 }
     expect(isReactive(reactiveObj)).toBe(true)
     expect(isReactive(readonlyObj)).toBe(false)

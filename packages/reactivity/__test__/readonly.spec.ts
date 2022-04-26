@@ -12,5 +12,7 @@ test('readonly', () => {
 
 test('readonly', () => {
   const obj = { foo: 1 }
+
   expect(isReadonly(toReadonly(obj))).toBe(true)
+  obj.foo = 2
 })
