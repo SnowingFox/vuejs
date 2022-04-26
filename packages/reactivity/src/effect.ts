@@ -1,4 +1,26 @@
+import { extend } from '../../shared/src'
 import { Dep, createDep } from './dep'
+import { TrackOpTypes, TriggerOpTypes } from './operation'
+
+export type DebuggerEvent = {
+  effect: ReactiveEffect
+} & DebuggerEventExtraInfo
+
+export interface DebuggerEventExtraInfo {
+  target: object
+  type: TrackOpTypes | TriggerOpTypes
+  key: any
+  newValue?: any
+  oldValue?: any
+  oldTarget?: Map<any, any> | Set<any>
+}
+
+export interface DebuggerOptions {
+  onTrack?: (event: DebuggerEvent) => void
+  onTrigger?: (event: DebuggerEvent) => void
+}
+
+export type EffectScheduler = (...args: any[]) => any
 
 let activeEffect: ReactiveEffect | null = null
 
@@ -10,6 +32,7 @@ export class ReactiveEffect<T = any> {
 
   constructor(
     public fn: () => T,
+    public scheduler: EffectScheduler | null = null,
   ) {
   }
 
@@ -35,12 +58,26 @@ export interface ReactiveEffectRunner<T = any> {
   effect: ReactiveEffect<T>
 }
 
+export interface ReactiveEffectOptions extends DebuggerOptions {
+  lazy?: boolean
+  scheduler?: EffectScheduler
+  allowRecurse?: boolean
+  onStop?: () => void
+}
+
 export function effect<T = any>(
   fn: () => T,
+  options?: ReactiveEffectOptions,
 ) {
   const _effect = new ReactiveEffect(fn)
 
-  _effect.run()
+  if (options) {
+    extend(_effect, options)
+  }
+
+  if (!options || !options.lazy) {
+    _effect.run()
+  }
   const runner = _effect.run.bind(_effect) as ReactiveEffectRunner<T>
   runner.effect = _effect
 
@@ -98,9 +135,13 @@ export function trigger(
 }
 
 export function triggerEffects(
-  dep: Dep,
+  dep: Dep | ReactiveEffect[],
 ) {
   for (const effect of dep) {
-    effect.run()
+    if (effect.scheduler) {
+      effect.scheduler()
+    } else {
+      effect.run()
+    }
   }
 }
