@@ -24,7 +24,6 @@ module.exports = {
       "@typescript-eslint/no-unused-vars": "off", // If open this, it will create some unexcepted errors
       "no-unused-vars": "error", // best choice
       "@typescript-eslint/no-use-before-define": "off",
-      "@typescript-eslint/indent":  "off",
       "@typescript-eslint/consistent-type-imports": "off",
       "@typescript-eslint/brace-style": "off",
       "@typescript-eslint/no-unnecessary-type-constraint": "off",

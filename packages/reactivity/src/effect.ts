@@ -22,6 +22,7 @@ export interface DebuggerOptions {
 
 export type EffectScheduler = (...args: any[]) => any
 
+export let shouldTrack = true
 export let activeEffect: ReactiveEffect | null = null
 
 type KeyToDepMap = Map<any, Dep>
@@ -103,11 +104,11 @@ export function track(target: Object, key: unknown) {
 }
 
 export function trackEffect(dep: Dep) {
-  let shouldTrack = false
   shouldTrack = !dep.has(activeEffect!)
   if (shouldTrack) {
     dep.add(activeEffect!)
     activeEffect!.deps.push(dep)
+    shouldTrack = false
   }
 }
 
