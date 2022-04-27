@@ -2,7 +2,6 @@ import { extend, isObject } from '../../shared/src'
 import {
   ReactiveFlags,
   Target,
-  isReactive,
   isShallow,
   reactive,
   reactiveMap,
