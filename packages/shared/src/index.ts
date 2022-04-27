@@ -19,3 +19,6 @@ export const def = (obj: object, key: string | symbol, value: any) => {
 }
 
 export const extend = Object.assign
+
+export const hasChanged = (value: any, oldValue: any): boolean =>
+  !Object.is(value, oldValue)
