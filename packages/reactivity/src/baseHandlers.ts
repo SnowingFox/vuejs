@@ -1,4 +1,4 @@
-import { extend, isObject } from '../../shared/src'
+import { extend, isObject } from '@vue/shared'
 import {
   ReactiveFlags,
   Target,
