@@ -22,7 +22,7 @@ export interface DebuggerOptions {
 
 export type EffectScheduler = (...args: any[]) => any
 
-let activeEffect: ReactiveEffect | null = null
+export let activeEffect: ReactiveEffect | null = null
 
 type KeyToDepMap = Map<any, Dep>
 const targetMap = new WeakMap<any, KeyToDepMap>()
@@ -102,7 +102,7 @@ export function track(target: Object, key: unknown) {
   trackEffect(dep)
 }
 
-function trackEffect(dep: Dep) {
+export function trackEffect(dep: Dep) {
   let shouldTrack = false
   shouldTrack = !dep.has(activeEffect!)
   if (shouldTrack) {
