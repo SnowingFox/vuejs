@@ -1,4 +1,4 @@
-import { isProxy, isReactive, reactive, readonly, toReactive } from '../src'
+import { isProxy, isReactive, reactive, readonly, toRaw, toReactive } from '../src'
 
 describe('reactivity/reactive', () => {
   test('reactive', () => {
@@ -39,5 +39,13 @@ describe('reactivity/reactive', () => {
   test('toReactive', () => {
     const obj = { foo: 1 }
     expect(isReactive(toReactive(obj))).toBe(true)
+  })
+
+  test('toRaw', () => {
+    const original = { foo: 1 }
+    const observed = reactive(original)
+    expect(toRaw(observed)).toBe(original)
+    expect(toRaw(original)).toBe(original)
+    expect(observed).not.toBe(original)
   })
 })
