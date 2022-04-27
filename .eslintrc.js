@@ -27,6 +27,9 @@ module.exports = {
       "@typescript-eslint/indent":  "off",
       "@typescript-eslint/consistent-type-imports": "off",
       "@typescript-eslint/brace-style": "off",
+      "@typescript-eslint/no-unnecessary-type-constraint": "off",
+      "import/no-mutable-exports": "off",
+      "no-cond-assign": "off",
       "spaced-comment": "off",
     }
   }]
