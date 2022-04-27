@@ -1,4 +1,4 @@
-import { isObject } from '../../shared/src'
+import { isObject } from '@vue/shared'
 import { mutableHandlers, readonlyHandlers, shallowReactiveHandlers, shallowReadonlyHandlers } from './baseHandlers'
 
 export const enum ReactiveFlags {
@@ -96,10 +96,8 @@ export function isProxy(target: unknown) {
   return isReactive(target) || isReadonly(target)
 }
 
-export function toReactive(target: unknown) {
-  return isObject(target) ? reactive(target) : target
-}
+export const toReactive = <T extends unknown>(value: T): T =>
+  isObject(value) ? reactive(value) : value
 
-export function toReadonly(target: unknown) {
-  return isObject(target) ? readonly(target as Record<any, any>) : target
-}
+export const toReadonly = <T extends unknown>(value: T): T =>
+  isObject(value) ? readonly(value as Record<any, any>) : value
