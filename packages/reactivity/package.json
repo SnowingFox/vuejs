@@ -4,5 +4,8 @@
   "description": "@vue/reactivity",
   "main": "index.js",
   "author": "snowingfox",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@vue/shared": "^1.0.0"
+  }
 }
