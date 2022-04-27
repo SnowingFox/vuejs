@@ -6,6 +6,6 @@
   "author": "snowingfox",
   "license": "MIT",
   "dependencies": {
-    "@vue/shared": "^1.0.0"
+    "@vue/shared": "workspace:*"
   }
 }
